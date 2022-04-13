@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Device } from './model/device';
 import { NgForm } from '@angular/forms';
 import { ApiService } from './api/api-service.service';
@@ -15,7 +14,7 @@ export class AppComponent {
   devices: Device[] = [];
   active: any = INITIAL_STATE;
 
-  constructor(private http: HttpClient, private apiService: ApiService<Device[]>) {
+  constructor(private apiService: ApiService<any>) {
     this.getAll();
   }
 
@@ -50,8 +49,8 @@ export class AppComponent {
   }
 
   add(device: Device) {
-    this.http
-      .post<Device>(`http://localhost:3000/devices`, device)
+    this.apiService
+      .post(`http://localhost:3000/devices`, device)
       .subscribe((res) => {
         this.devices.push(res);
         this.reset();
@@ -61,13 +60,14 @@ export class AppComponent {
   edit(device: Device) {
     const newDevice = Object.assign({}, this.active, device);
 
-    this.http
-      .patch<Device>(`http://localhost:3000/devices/${newDevice.id}`, newDevice)
-      .subscribe((res) => {
+    this.apiService
+      .put(`http://localhost:3000/devices/${newDevice.id}`, newDevice)
+      .subscribe((_res) => {
         const index = this.devices.findIndex(
           (device) => device.id === newDevice.id
         );
         this.devices[index] = newDevice;
+        this.reset();
       });
   }
 
